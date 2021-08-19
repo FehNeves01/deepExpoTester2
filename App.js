@@ -1,19 +1,35 @@
-import { StatusBar } from 'expo-status-bar';
+
 import React, {useEffect, useState} from 'react';
 import { Button, StyleSheet, Text, View } from 'react-native';
 //Importando dependencias Expo
 import * as Linking from 'expo-linking';
-import * as WebBrowser from 'expo-web-browser';
+import HomeScreen from './screens/HomeScreens'
+import SettingScreen from './screens/SettingsScreens'
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
 
+
+const prefix = Linking.makeUrl('/');
+const Stack = createStackNavigator();
 export default function App() {
-
   const [data, setData] = useState('');
+
+  const linking = {
+    prefixes:[prefix],
+    config:{
+      screens:{
+        Home:"home",
+        Settings:"settings",
+
+      },
+    },
+  };
 
   function handleDeepLink(event){
   let data = Linking.parse(event.url);
   setData(data);
 }
-
+  // funcionando via URL exp://
   useEffect(()=>{
     async function getInicialURL(){
       const inicialURL = await Linking.getInitialURL();
@@ -21,6 +37,7 @@ export default function App() {
     }
 
     Linking.addEventListener("url", handleDeepLink);
+    
     if(!data){
       getInicialURL();
     }
@@ -31,17 +48,26 @@ export default function App() {
   },[]);
 
   return (
-    <View style={styles.container}>
-     
-      <StatusBar style="auto" />
-      <View style={styles.viewBtn}>
-        <Text>{data? JSON.stringify(data): "app not opened from deep link "}</Text>
-      </View>
-      <View style={styles.viewBtn}>
-        <Button  title="Open With Link" onPress={() => Linking.openURL("https://github.com/FehNeves01")} />
-        <Button title="Open Web Browser" onPress={() => WebBrowser.openBrowserAsync('https://github.com/FehNeves01')} />
-      </View>
-    </View>
+
+    <NavigationContainer linking ={linking}>
+      <Stack.Navigator >
+        {console.log(JSON.stringify(data))}
+        <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="Settings" component={SettingScreen} />
+      </Stack.Navigator>
+      
+    </NavigationContainer> 
+
+
+
+
+
+
+
+
+
+
+  
   );
 }
 
